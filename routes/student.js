@@ -1,6 +1,7 @@
 import { Router } from "express";
 import models from "../models/index.js";
 import ajvObj from "../schemas/validation.js";
+import { AgeFromDateString } from "age-calculator";
 
 const router = Router();
 
@@ -20,6 +21,14 @@ function errorHandler(err, req, res, next) {
     return res.status(500).send({ message: err.message });
 }
 
+function calculateAge(dob) {
+    const studentAge = new AgeFromDateString(dob).age;
+    console.log("-----------studentAge:", studentAge);
+    if (studentAge < 10) {
+        throw new Error("Student is under 10");
+    }
+}
+
 // Student get all
 router.get("/", async (req, res) => {
     try {
@@ -33,6 +42,7 @@ router.get("/", async (req, res) => {
 // Student create
 router.post("/", validateRequest("studentCreate"), async (req, res, next) => {
     try {
+        calculateAge(req.body.dob);
         const studentRes = await models.Student.findOrCreateStudent(req.body);
         return res.status(200).send(studentRes);
     } catch (error) {
