@@ -84,6 +84,7 @@ const getResultModel = (sequelize, { DataTypes }) => {
         try {
             const results = await Result.findAll({
                 attributes: [
+                    ["res_id","resultId"],
                     [sequelize.col("Course.cou_id"), "courseId"],
                     [sequelize.col("Course.cou_name"), "courseName"],
                     [sequelize.col("Student.stu_id"), "studentId"],
