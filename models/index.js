@@ -1,5 +1,5 @@
+import logger from '../index.js';
 import Sequelize from "sequelize";
-
 import getStudentModel from "./student.js";
 import getCourseModel from "./course.js";
 import getResultModel from "./result.js";
@@ -22,7 +22,7 @@ const models = {
 
 if (process.env.NODE_ENV === "test") {
     sequelize.sync({ force: true });
-    console.log("All models were synchronized successfully.");
+    logger.info("All models were synchronized successfully.");
 }
 export { sequelize };
 

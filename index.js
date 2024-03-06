@@ -7,7 +7,7 @@ import expressWinston from "express-winston";
 import winston from "winston";
 import routes from "./routes/index.js";
 import models from "./models/index.js";
-import authenticateToken from './auth.js';
+import authenticateToken from "./auth.js";
 
 const app = express();
 
@@ -28,20 +28,30 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.disable("x-powered-by");
 
-// Custom Middleware
+
 const logger = winston.createLogger({
-    level: "info", // Set your desired log level
-    format: winston.format.json(), // Use JSON format for logs
+    level: "info",
+    format: winston.format.combine(
+        winston.format.align(),
+        winston.format.timestamp({
+            format: 'YYYY-MM-DD hh:mm:ss.SSS A',
+        }),
+        winston.format.colorize({ all: true }),
+        winston.format.simple(),
+        winston.format.printf((info) => `${info.timestamp} - ${info.level}: ${info.message}`)
+    ),
     transports: [
-        new winston.transports.Console(), // Add desired transports (e.g., console)
+        new winston.transports.Console(),
     ],
 });
-// Use the express-winston middleware
 app.use(
     expressWinston.logger({
         winstonInstance: logger,
+        responseWhitelist: ["body"],
+        requestWhitelist: ["headers", "query", "body"],
     })
 );
+export default logger;
 
 app.use(async (req, res, next) => {
     req.context = { models };
@@ -65,7 +75,7 @@ app.use((req, res, next) => {
 });
 
 app.use((err, req, res, next) => {
-    console.error(err.stack);
+    logger.error(err.stack);
     res.status(500).send({
         error: err.message,
     });
@@ -74,5 +84,5 @@ app.use((err, req, res, next) => {
 // * Start * //
 
 app.listen(PORT, () => {
-    console.log(`Listening on ${PORT}`);
+    logger.info(`Listening on ${PORT}`);
 });

@@ -1,3 +1,4 @@
+import logger from '../index.js';
 const getCourseModel = (sequelize, { DataTypes }) => {
     const Course = sequelize.define(
         "Course",
@@ -44,7 +45,7 @@ const getCourseModel = (sequelize, { DataTypes }) => {
 
             return { ...course, created };
         } catch (error) {
-            console.error("Error creating course: ", error);
+            logger.error("Error creating course: ", error.message);
             throw error;
         }
     };
@@ -60,7 +61,7 @@ const getCourseModel = (sequelize, { DataTypes }) => {
             });
             return courses;
         } catch (error) {
-            console.error("Error fetching all courses: ", error);
+            logger.error("Error fetching all courses: ", error.message);
             throw error;
         }
     };
@@ -73,7 +74,7 @@ const getCourseModel = (sequelize, { DataTypes }) => {
                 transaction,
             });
             if (!courseObj || courseObj.cou_isDeleted) {
-                console.error("Course not found");
+                logger.info("Course not found");
                 return { ...course, deleted: false };
             }
 
@@ -91,7 +92,7 @@ const getCourseModel = (sequelize, { DataTypes }) => {
 
             return { courseName: courseObj.cou_name, deleted: true };
         } catch (error) {
-            console.error("Error soft deleting course: ", error);
+            logger.error("Error soft deleting course: ", error.message);
             if (transaction) await transaction.rollback();
             throw error;
         }

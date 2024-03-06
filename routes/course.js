@@ -1,3 +1,4 @@
+import logger from '../index.js';
 import { Router } from "express";
 import models from "../models/index.js";
 import ajvObj from "../schemas/validation.js";
@@ -8,7 +9,7 @@ function validateRequest(schemaName) {
     return (req, res, next) => {
         const validate = ajvObj.getSchema(schemaName);
         if (!validate(req.body)) {
-            console.error(validate.errors);
+            logger.error(validate.errors);
             return res.status(400).send(validate.errors);
         }
         next();
@@ -16,7 +17,7 @@ function validateRequest(schemaName) {
 }
 
 function errorHandler(err, req, res, next) {
-    console.error(err);
+    logger.error(err.message);
     return res.status(500).send({ message: err.message });
 }
 

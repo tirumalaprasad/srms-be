@@ -1,3 +1,4 @@
+import logger from '../index.js';
 const getStudentModel = (sequelize, { DataTypes }) => {
     const Student = sequelize.define(
         "Student",
@@ -76,7 +77,7 @@ const getStudentModel = (sequelize, { DataTypes }) => {
 
             return { ...student, created };
         } catch (error) {
-            console.error("Error creating student: ", error);
+            logger.error("Error creating student: ", error.message);
             throw error;
         }
     };
@@ -94,7 +95,7 @@ const getStudentModel = (sequelize, { DataTypes }) => {
             });
             return students;
         } catch (error) {
-            console.error("Error fetching all students: ", error);
+            logger.error("Error fetching all students: ", error.message);
             throw error;
         }
     };
@@ -124,7 +125,7 @@ const getStudentModel = (sequelize, { DataTypes }) => {
             await transaction.commit();
             return { studentName: studentObj.stu_full_name, deleted: true };
         } catch (error) {
-            console.error("Error soft deleting student: ", error);
+            logger.error("Error soft deleting student: ", error.message);
             if (transaction) await transaction.rollback();
             throw error;
         }

@@ -1,3 +1,4 @@
+import logger from '../index.js';
 const getResultModel = (sequelize, { DataTypes }) => {
     const Result = sequelize.define(
         "Result",
@@ -56,7 +57,7 @@ const getResultModel = (sequelize, { DataTypes }) => {
                 course.cou_isDeleted ||
                 student.stu_isDeleted
             ) {
-                console.log("Course or Student is invalid");
+                logger.info("Course or Student is invalid");
                 return { ...resultObj, created: false };
             }
 
@@ -74,7 +75,7 @@ const getResultModel = (sequelize, { DataTypes }) => {
 
             return { ...resultObj, created };
         } catch (error) {
-            console.error("Error creating result: ", error);
+            logger.error("Error creating result: ", error.message);
             throw error;
         }
     };
@@ -105,7 +106,7 @@ const getResultModel = (sequelize, { DataTypes }) => {
             });
             return results;
         } catch (error) {
-            console.error("Error fetching all results: ", error);
+            logger.error("Error fetching all results: ", error.message);
             throw error;
         }
     };
