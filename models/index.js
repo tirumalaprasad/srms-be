@@ -1,4 +1,4 @@
-import logger from '../index.js';
+import {logger} from '../log.js';
 import Sequelize from "sequelize";
 import getStudentModel from "./student.js";
 import getCourseModel from "./course.js";

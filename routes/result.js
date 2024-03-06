@@ -1,4 +1,4 @@
-import logger from '../index.js';
+import {logger} from '../log.js';
 import { Router } from "express";
 import models from "../models/index.js";
 import ajvObj from "../schemas/validation.js";

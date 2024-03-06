@@ -1,4 +1,4 @@
-import logger from '../index.js';
+import {logger} from '../log.js';
 const getResultModel = (sequelize, { DataTypes }) => {
     const Result = sequelize.define(
         "Result",
