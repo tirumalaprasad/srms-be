@@ -7,5 +7,6 @@
     "courseName": {
       "type": "string"
     }
-  }
+  },
+  "additionalProperties": false
 }

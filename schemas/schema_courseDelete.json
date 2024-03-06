@@ -7,5 +7,6 @@
     "courseId": {
       "type": "integer"
     }
-  }
+  },
+  "additionalProperties": false
 }
