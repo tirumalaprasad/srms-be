@@ -6,6 +6,12 @@ import getResultModel from "./result.js";
 
 const sequelize = new Sequelize(process.env.DB_URL, {
     logging: console.log,
+    dialectOptions: {
+        ssl: {
+            require: false,
+            rejectUnauthorized: false
+        }
+    },
 });
 
 const models = {
