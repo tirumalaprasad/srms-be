@@ -7,6 +7,7 @@ import expressWinston from "express-winston";
 import winston from "winston";
 import routes from "./routes/index.js";
 import models from "./models/index.js";
+import authenticateToken from './auth.js';
 
 const app = express();
 
@@ -19,6 +20,7 @@ app.use(
     })
 );
 app.use(helmet());
+app.use(authenticateToken);
 const PORT = process.env.PORT || 3000;
 
 // Built-In Middleware
@@ -38,7 +40,6 @@ const logger = winston.createLogger({
 app.use(
     expressWinston.logger({
         winstonInstance: logger,
-        // Other configuration options
     })
 );
 
