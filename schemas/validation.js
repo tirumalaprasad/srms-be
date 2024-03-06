@@ -7,6 +7,8 @@ import courseDelete from "./schema_courseDelete.json" assert { type: "json" };
 import studentCreate from "./schema_studentCreate.json" assert { type: "json" };
 import studentDelete from "./schema_studentDelete.json" assert { type: "json" };
 
+import resultCreate from "./schema_result.json" assert { type: "json" };
+
 const ajvObj = new ajv();
 addFormats(ajvObj);
 
@@ -16,6 +18,6 @@ ajvObj.addSchema(courseDelete, "courseDelete");
 ajvObj.addSchema(studentCreate, "studentCreate");
 ajvObj.addSchema(studentDelete, "studentDelete");
 
-// ajvObj.addSchema(schema_result, "result");
+ajvObj.addSchema(resultCreate, "resultCreate");
 
 export default ajvObj;

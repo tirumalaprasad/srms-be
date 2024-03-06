@@ -4,56 +4,39 @@ import ajvObj from "../schemas/validation.js";
 
 const router = Router();
 
+function validateRequest(schemaName) {
+    return (req, res, next) => {
+        const validate = ajvObj.getSchema(schemaName);
+        if (!validate(req.body)) {
+            console.error(validate.errors);
+            return res.status(400).send(validate.errors);
+        }
+        next();
+    };
+}
+
+function errorHandler(err, req, res, next) {
+    console.error(err);
+    return res.status(500).send({ message: err.message });
+}
+
 router.get("/", async (req, res) => {
     try {
-        const courseRes = await models.Course.findAllCourses();
-        return res.send(courseRes);
+        const resultObj = await models.Result.findAllResults();
+        return res.status(200).send(resultObj);
     } catch (error) {
-        console.error(error);
-        return res.status(500).send({
-            message: "Error",
-        });
+        next(error);
     }
 });
 
-router.post("/", async (req, res) => {
-    const validate = ajvObj.getSchema("course");
-    if (!validate(req.body)) {
-        console.error(validate.errors);
-        return res.status(400).send(validate.errors);
-    }
-
+router.post("/", validateRequest("resultCreate"), async (req, res, next) => {
     try {
-        const courseRes = await models.Course.findOrCreateCourse(
-            req.body.courseName
-        );
-        return res.status(200).send(courseRes);
+        const resultObj = await models.Result.createResult(req.body);
+        return res.status(200).send(resultObj);
     } catch (error) {
-        console.error(error);
-        return res.status(500).send({
-            message: "Error",
-        });
+        next(error);
     }
 });
 
-router.put("/", async (req, res) => {
-    const validate = ajvObj.getSchema("course");
-    if (!validate(req.body)) {
-        console.error(validate.errors);
-        return res.status(400).send(validate.errors);
-    }
-
-    try {
-        const courseRes = await models.Course.softDeleteCourse(
-            req.body.courseId
-        );
-        return res.status(200).send(courseRes);
-    } catch (error) {
-        console.error(error);
-        return res.status(500).send({
-            message: "Error",
-        });
-    }
-});
-
+router.use(errorHandler);
 export default router;
