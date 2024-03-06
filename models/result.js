@@ -5,18 +5,18 @@ const getResultModel = (sequelize, { DataTypes }) => {
             res_id: {
                 type: DataTypes.INTEGER,
                 primaryKey: true,
-                autoIncrement: true
+                autoIncrement: true,
             },
             res_score: {
-                type: DataTypes.ENUM('A', 'B', 'C', 'D', 'E', 'F'),
+                type: DataTypes.ENUM("A", "B", "C", "D", "E", "F"),
                 allowNull: false,
                 validate: {
-                    isIn: [['A', 'B', 'C', 'D', 'E', 'F']]
-                }
+                    isIn: [["A", "B", "C", "D", "E", "F"]],
+                },
             },
             res_isDeleted: {
                 type: DataTypes.BOOLEAN,
-                defaultValue: false
+                defaultValue: false,
             },
         },
         {
@@ -25,41 +25,47 @@ const getResultModel = (sequelize, { DataTypes }) => {
             timestamps: false,
             indexes: [
                 {
-                    fields: ['cou_id']
+                    fields: ["cou_id"],
                 },
                 {
-                    fields: ['stu_id']
-                }
-            ]
+                    fields: ["stu_id"],
+                },
+            ],
         }
     );
 
-    Result.belongsTo(sequelize.models.Course, { foreignKey: 'cou_id' });
-    Result.belongsTo(sequelize.models.Student, { foreignKey: 'stu_id' });
+    Result.belongsTo(sequelize.models.Course, { foreignKey: "cou_id" });
+    Result.belongsTo(sequelize.models.Student, { foreignKey: "stu_id" });
 
-
-    Result.createResult = async (resultData) => {
-        const { cou_id, stu_id } = resultData;
+    Result.createResult = async (result) => {
+        const { courseId, studentId } = result;
 
         try {
             const [course, student] = await Promise.all([
-                sequelize.models.Course.findByPk(cou_id),
-                sequelize.models.Student.findByPk(stu_id)
+                sequelize.models.Course.findByPk(courseId),
+                sequelize.models.Student.findByPk(studentId),
             ]);
 
-            if (!course || !student || course.cou_isDeleted || student.stu_isDeleted) {
-                throw new Error('Course/Student is soft deleted');
+            if (
+                !course ||
+                !student ||
+                course.cou_isDeleted ||
+                student.stu_isDeleted
+            ) {
+                console.log("Course or Student is invalid");
+                return { ...result, created: false };
             }
 
             let [result, created] = await Result.findOrCreate({
-                where: { cou_id, stu_id },
+                where: { courseId, studentId },
                 defaults: {
-                    res_score: resultData.score
-                }
+                    res_score: result.score,
+                },
             });
 
             if (!created && result.res_isDeleted) {
                 await result.update({ res_isDeleted: false });
+                created = true;
             }
 
             return { result, created };
@@ -71,7 +77,9 @@ const getResultModel = (sequelize, { DataTypes }) => {
 
     Result.findAllResults = async () => {
         try {
-            const results = await Result.findAll({ where: { res_isDeleted: false } });
+            const results = await Result.findAll({
+                where: { res_isDeleted: false },
+            });
             return results;
         } catch (error) {
             console.error("Error fetching all results: ", error);

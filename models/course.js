@@ -33,8 +33,8 @@ const getCourseModel = (sequelize, { DataTypes }) => {
     Course.findOrCreateCourse = async (course) => {
         try {
             let [courseObj, created] = await Course.findOrCreate({
-                where: { cou_name: course },
-                defaults: { cou_name: course },
+                where: { cou_name: course.courseName },
+                defaults: { cou_name: course.courseName },
             });
 
             if (!created && courseObj.cou_isDeleted) {
@@ -42,7 +42,7 @@ const getCourseModel = (sequelize, { DataTypes }) => {
                 created = true;
             }
 
-            return { courseName: courseObj.cou_name, created };
+            return { ...course, created };
         } catch (error) {
             console.error("Error creating course: ", error);
             throw error;
@@ -52,7 +52,10 @@ const getCourseModel = (sequelize, { DataTypes }) => {
     Course.findAllCourses = async () => {
         try {
             const courses = await Course.findAll({
-                attributes: [["cou_id", "courseId"], ["cou_name", "courseName"]],
+                attributes: [
+                    ["cou_id", "courseId"],
+                    ["cou_name", "courseName"],
+                ],
                 where: { cou_isDeleted: false },
             });
             return courses;
@@ -62,29 +65,31 @@ const getCourseModel = (sequelize, { DataTypes }) => {
         }
     };
 
-    Course.softDeleteCourse = async (courseId) => {
+    Course.softDeleteCourse = async (course) => {
         let transaction;
         try {
             transaction = await sequelize.transaction();
-            const course = await Course.findByPk(courseId, { transaction });
-            if (!course || course.cou_isDeleted) {
+            const courseObj = await Course.findByPk(course.courseId, {
+                transaction,
+            });
+            if (!courseObj || courseObj.cou_isDeleted) {
                 console.error("Course not found");
-                return { courseName: course.cou_name, deleted: false };
+                return { ...course, deleted: false };
             }
 
-            await course.update({ cou_isDeleted: true }, { transaction });
+            await courseObj.update({ cou_isDeleted: true }, { transaction });
 
             await sequelize.models.Result.update(
                 { res_isDeleted: true },
                 {
-                    where: { cou_id: courseId },
+                    where: { cou_id: course.courseId },
                     transaction,
                 }
             );
 
             await transaction.commit();
 
-            return { courseName: course.cou_name, deleted: true };
+            return { courseName: courseObj.cou_name, deleted: true };
         } catch (error) {
             console.error("Error soft deleting course: ", error);
             if (transaction) await transaction.rollback();

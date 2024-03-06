@@ -4,52 +4,51 @@ import ajvObj from "../schemas/validation.js";
 
 const router = Router();
 
+function validateRequest(schemaName) {
+    return (req, res, next) => {
+        const validate = ajvObj.getSchema(schemaName);
+        if (!validate(req.body)) {
+            console.error(validate.errors);
+            return res.status(400).send(validate.errors);
+        }
+        next();
+    };
+}
+
+function errorHandler(err, req, res, next) {
+    console.error(err);
+    return res.status(500).send({ message: err.message });
+}
+
+// Student get all
 router.get("/", async (req, res) => {
     try {
-        const courseRes = await models.Course.findAllCourses();
-        return res.send(courseRes);
+        const studentRes = await models.Student.findAllStudents();
+        return res.send(studentRes);
     } catch (error) {
-        console.error(error);
-        return res.status(500).send({
-            message: "Error",
-        });
+        next(error);
     }
 });
 
-router.post("/", async (req, res) => {
-    const validate = ajvObj.getSchema("course");
-    if (!validate(req.body)) {
-        console.error(validate.errors);
-        return res.status(400).send(validate.errors);
-    }
-
+// Student create
+router.post("/", validateRequest("studentCreate"), async (req, res, next) => {
     try {
-        const courseRes = await models.Course.findOrCreateCourse(req.body.courseName);
-        return res.status(200).send(courseRes);
+        const studentRes = await models.Student.findOrCreateStudent(req.body);
+        return res.status(200).send(studentRes);
     } catch (error) {
-        console.error(error);
-        return res.status(500).send({
-            message: "Error",
-        });
+        next(error);
     }
 });
 
-router.put("/", async (req, res) => {
-    const validate = ajvObj.getSchema("course");
-    if (!validate(req.body)) {
-        console.error(validate.errors);
-        return res.status(400).send(validate.errors);
-    }
-
+// Student delete
+router.put("/", validateRequest("studentDelete"), async (req, res, next) => {
     try {
-        const courseRes = await models.Course.softDeleteCourse(req.body.courseId);
-        return res.status(200).send(courseRes);
+        const studentRes = await models.Student.softDeleteStudent(req.body);
+        return res.status(200).send(studentRes);
     } catch (error) {
-        console.error(error);
-        return res.status(500).send({
-            message: "Error",
-        });
+        next(error);
     }
 });
 
+router.use(errorHandler);
 export default router;

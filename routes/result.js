@@ -24,7 +24,9 @@ router.post("/", async (req, res) => {
     }
 
     try {
-        const courseRes = await models.Course.findOrCreateCourse(req.body.courseName);
+        const courseRes = await models.Course.findOrCreateCourse(
+            req.body.courseName
+        );
         return res.status(200).send(courseRes);
     } catch (error) {
         console.error(error);
@@ -42,7 +44,9 @@ router.put("/", async (req, res) => {
     }
 
     try {
-        const courseRes = await models.Course.softDeleteCourse(req.body.courseId);
+        const courseRes = await models.Course.softDeleteCourse(
+            req.body.courseId
+        );
         return res.status(200).send(courseRes);
     } catch (error) {
         console.error(error);

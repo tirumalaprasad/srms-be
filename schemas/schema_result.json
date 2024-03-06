@@ -8,8 +8,6 @@
             "type": "string"
         }
     },
-    "required": [
-        "foo"
-    ],
+    "required": ["foo"],
     "additionalProperties": false
 }

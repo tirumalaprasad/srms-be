@@ -1,15 +1,11 @@
 {
+    "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "object",
+    "required": ["studentId"],
     "properties": {
-        "foo": {
+        "studentId": {
             "type": "integer"
-        },
-        "bar": {
-            "type": "string"
         }
     },
-    "required": [
-        "foo"
-    ],
     "additionalProperties": false
 }

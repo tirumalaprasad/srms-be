@@ -16,10 +16,10 @@ const getStudentModel = (sequelize, { DataTypes }) => {
                 allowNull: false,
             },
             stu_full_name: {
-                type: DataTypes.VIRTUAL,
-                get() {
-                    return `${this.stu_first_name} ${this.stu_family_name}`;
-                }
+                type: DataTypes.STRING,
+                // get() {
+                //     return `${this.stu_first_name} ${this.stu_family_name}`;
+                // }
             },
             stu_date_of_birth: {
                 type: DataTypes.DATEONLY,
@@ -57,38 +57,38 @@ const getStudentModel = (sequelize, { DataTypes }) => {
     );
 
     // Define class methods
-    Student.findOrCreateStudent = async (studentData) => {
+    Student.findOrCreateStudent = async (student) => {
         try {
-            const [studentObj, created] = await Student.findOrCreate({
-                where: { stu_email: studentData.stu_email },
+            let [studentObj, created] = await Student.findOrCreate({
+                where: { stu_email: student.email },
                 defaults: {
-                    stu_first_name: studentData.first_name,
-                    stu_family_name: studentData.family_name,
-                    stu_date_of_birth: studentData.date_of_birth,
-                    stu_email: studentData.email
+                    stu_first_name: student.firstName,
+                    stu_family_name: student.familyName,
+                    stu_date_of_birth: student.dob,
+                    stu_email: student.email,
                 },
             });
 
             if (!created && studentObj.stu_isDeleted) {
                 await studentObj.update({ stu_isDeleted: false });
+                created = true;
             }
 
-            return { studentObj, created };
+            return { ...student, created };
         } catch (error) {
             console.error("Error creating student: ", error);
             throw error;
         }
     };
 
-
     Student.findAllStudents = async () => {
         try {
             const students = await Student.findAll({
                 attributes: [
-                    "stu_id",
-                    "stu_full_name",
-                    "stu_date_of_birth",
-                    "stu_email",
+                    ["stu_id", "studentId"],
+                    ["stu_full_name", "studentFullName"],
+                    ["stu_date_of_birth", "studentDoB"],
+                    ["stu_email", "studentEmail"],
                 ],
                 where: { stu_isDeleted: false },
             });
@@ -99,28 +99,30 @@ const getStudentModel = (sequelize, { DataTypes }) => {
         }
     };
 
-    Student.softDeleteStudent = async (studentId) => {
+    Student.softDeleteStudent = async (student) => {
         let transaction;
         try {
             transaction = await sequelize.transaction();
 
-            const student = await Student.findByPk(studentId, { transaction });
-            if (!student) {
-                throw new Error("Student not found");
+            let studentObj = await Student.findByPk(student.studentId, {
+                transaction,
+            });
+            if (!studentObj || studentObj.stu_isDeleted) {
+                return { ...student, deleted: false };
             }
 
-            await student.update({ stu_isDeleted: true }, { transaction });
+            await studentObj.update({ stu_isDeleted: true }, { transaction });
 
             await sequelize.models.Result.update(
                 { res_isDeleted: true },
                 {
-                    where: { stu_id: studentId },
+                    where: { stu_id: student.studentId },
                     transaction,
                 }
             );
 
             await transaction.commit();
-            return student;
+            return { studentName: studentObj.stu_full_name, deleted: true };
         } catch (error) {
             console.error("Error soft deleting student: ", error);
             if (transaction) await transaction.rollback();
