@@ -1,5 +1,5 @@
 import "dotenv/config";
-// import cors from "cors";
+import cors from "cors";
 import compression from "compression";
 import express from "express";
 import helmet from "helmet";
@@ -12,12 +12,14 @@ const app = express();
 
 // Third-Party Middleware
 app.use(compression());
-// app.use(
-//     cors({
-//         origin: "https://vercel.com",
-//         methods: ["GET", "POST", "PUT"],
-//     })
-// );
+
+const corsOptions = {
+    "origin": "*",
+    "methods": "GET,PUT,POST"
+}
+
+app.use(cors(corsOptions));
+
 app.use(helmet());
 app.use(authenticateToken);
 const PORT = process.env.PORT || 3000;
