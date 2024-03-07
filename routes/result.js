@@ -33,7 +33,19 @@ router.get("/", async (req, res) => {
 router.post("/", validateRequest("resultCreate"), async (req, res, next) => {
     try {
         const resultObj = await models.Result.createResult(req.body);
-        return res.status(200).send(resultObj);
+        if (resultObj.created) {
+            return res.status(200).send({
+                message: 'Result created',
+                created: true,
+            });
+        } else {
+            return res
+                .status(200)
+                .send({
+                    message: "Result already exists or invalid input",
+                    created: false,
+                });
+        }
     } catch (error) {
         next(error);
     }

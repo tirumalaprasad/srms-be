@@ -1,4 +1,4 @@
-import {logger} from '../log.js';
+import { logger } from "../log.js";
 import { Router } from "express";
 import models from "../models/index.js";
 import ajvObj from "../schemas/validation.js";
@@ -42,10 +42,27 @@ router.post("/", validateRequest("studentCreate"), async (req, res, next) => {
     try {
         if (!isValidAge(req.body.dob)) {
             logger.error("Student is under 10");
-            return res.status(200).send({ message: "Student is under 10", created: false });
+            return res
+                .status(200)
+                .send({
+                    message: "Student is under 10 years of age",
+                    created: true,
+                });
         }
         const studentRes = await models.Student.findOrCreateStudent(req.body);
-        return res.status(200).send(studentRes);
+        if (studentRes.created) {
+            return res.status(200).send({
+                message: `Student ${studentRes.firstName} ${studentRes.familyName} created`,
+                created: true,
+            });
+        } else {
+            return res
+                .status(200)
+                .send({
+                    message: "Student already exists or invalid input",
+                    created: false,
+                });
+        }
     } catch (error) {
         next(error);
     }
@@ -55,7 +72,18 @@ router.post("/", validateRequest("studentCreate"), async (req, res, next) => {
 router.put("/", validateRequest("studentDelete"), async (req, res, next) => {
     try {
         const studentRes = await models.Student.softDeleteStudent(req.body);
-        return res.status(200).send(studentRes);
+        if (studentRes.deleted) {
+            return res
+                .status(200)
+                .send({ message: "Student deleted", deleted: true });
+        } else {
+            return res
+                .status(200)
+                .send({
+                    message: "Student already deleted or invalid input",
+                    deleted: false,
+                });
+        }
     } catch (error) {
         next(error);
     }

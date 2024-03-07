@@ -1,4 +1,4 @@
-import {logger} from '../log.js';
+import { logger } from "../log.js";
 import { Router } from "express";
 import models from "../models/index.js";
 import ajvObj from "../schemas/validation.js";
@@ -35,7 +35,21 @@ router.get("/", async (req, res) => {
 router.post("/", validateRequest("courseCreate"), async (req, res, next) => {
     try {
         const courseRes = await models.Course.findOrCreateCourse(req.body);
-        return res.status(200).send(courseRes);
+        if (courseRes.created) {
+            return res
+                .status(200)
+                .send({
+                    message: `Course ${courseRes.courseName} created`,
+                    created: true,
+                });
+        } else {
+            return res
+                .status(200)
+                .send({
+                    message: `Course ${courseRes.courseName} already exists or invalid input`,
+                    created: false,
+                });
+        }
     } catch (error) {
         next(error);
     }
@@ -45,7 +59,19 @@ router.post("/", validateRequest("courseCreate"), async (req, res, next) => {
 router.put("/", validateRequest("courseDelete"), async (req, res, next) => {
     try {
         const courseRes = await models.Course.softDeleteCourse(req.body);
-        return res.status(200).send(courseRes);
+        if (courseRes.deleted) {
+            return res.status(200).send({
+                message: `Course deleted`,
+                deleted: true,
+            });
+        } else {
+            return res
+                .status(200)
+                .send({
+                    message: `Course already deleted or invalid input`,
+                    deleted: false,
+                });
+        }
     } catch (error) {
         next(error);
     }
