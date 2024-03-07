@@ -42,7 +42,7 @@ router.post("/", validateRequest("studentCreate"), async (req, res, next) => {
     try {
         if (!isValidAge(req.body.dob)) {
             logger.error("Student is under 10");
-            return res.status(400).send({ message: "Student is under 10", created: false });
+            return res.status(200).send({ message: "Student is under 10", created: false });
         }
         const studentRes = await models.Student.findOrCreateStudent(req.body);
         return res.status(200).send(studentRes);
