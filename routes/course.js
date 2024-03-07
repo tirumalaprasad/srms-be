@@ -27,7 +27,7 @@ router.get("/", async (req, res) => {
         const courseRes = await models.Course.findAllCourses();
         return res.send(courseRes);
     } catch (error) {
-        next(error);
+       console.error(error);
     }
 });
 
@@ -51,7 +51,7 @@ router.post("/", validateRequest("courseCreate"), async (req, res, next) => {
                 });
         }
     } catch (error) {
-        next(error);
+       console.error(error);
     }
 });
 
@@ -73,7 +73,7 @@ router.put("/", validateRequest("courseDelete"), async (req, res, next) => {
                 });
         }
     } catch (error) {
-        next(error);
+       console.error(error);
     }
 });
 

@@ -33,7 +33,7 @@ router.get("/", async (req, res) => {
         const studentRes = await models.Student.findAllStudents();
         return res.send(studentRes);
     } catch (error) {
-        next(error);
+       console.error(error);
     }
 });
 
@@ -64,7 +64,7 @@ router.post("/", validateRequest("studentCreate"), async (req, res, next) => {
                 });
         }
     } catch (error) {
-        next(error);
+       console.error(error);
     }
 });
 
@@ -85,7 +85,7 @@ router.put("/", validateRequest("studentDelete"), async (req, res, next) => {
                 });
         }
     } catch (error) {
-        next(error);
+       console.error(error);
     }
 });
 

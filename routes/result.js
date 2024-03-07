@@ -1,4 +1,4 @@
-import {logger} from '../log.js';
+import { logger } from "../log.js";
 import { Router } from "express";
 import models from "../models/index.js";
 import ajvObj from "../schemas/validation.js";
@@ -26,7 +26,22 @@ router.get("/", async (req, res) => {
         const resultObj = await models.Result.findAllResults();
         return res.status(200).send(resultObj);
     } catch (error) {
-        next(error);
+        console.error(error);
+    }
+});
+
+router.get("/toeval", async (req, res) => {
+    try {
+        const p1 = models.Course.findAllCourses();
+        const p2 = models.Student.findAllStudents();
+        const [courseObj, studentObj] = await Promise.all([p1, p2]);
+        let result = {
+            courses: courseObj,
+            students: studentObj,
+        };
+        return res.status(200).send(result);
+    } catch (error) {
+        console.error(error);
     }
 });
 
@@ -35,19 +50,17 @@ router.post("/", validateRequest("resultCreate"), async (req, res, next) => {
         const resultObj = await models.Result.createResult(req.body);
         if (resultObj.created) {
             return res.status(200).send({
-                message: 'Result created',
+                message: "Result created",
                 created: true,
             });
         } else {
-            return res
-                .status(200)
-                .send({
-                    message: "Result already exists or invalid input",
-                    created: false,
-                });
+            return res.status(200).send({
+                message: "Result already exists or invalid input",
+                created: false,
+            });
         }
     } catch (error) {
-        next(error);
+        console.error(error);
     }
 });
 
